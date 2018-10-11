@@ -5,13 +5,20 @@
     <div :class="{hasTagsView:needTagsView}" class="main-container">
       <navbar/>
       <tags-view v-if="needTagsView"/>
+
+      <div @click="active=!active">点我</div>
       <app-main/>
+      <side-panel v-model="active">
+        apple
+      </side-panel>
+
     </div>
   </div>
 </template>
 
 <script>
 import { Navbar, Sidebar, AppMain, TagsView } from './components'
+import SidePanel from '@/components/SidePanel'
 import ResizeMixin from './mixin/ResizeHandler'
 
 export default {
@@ -20,9 +27,15 @@ export default {
     Navbar,
     Sidebar,
     AppMain,
-    TagsView
+    TagsView,
+    SidePanel
   },
   mixins: [ResizeMixin],
+  data() {
+    return {
+      active: false
+    }
+  },
   computed: {
     sidebar() {
       return this.$store.state.app.sidebar
