@@ -1,25 +1,22 @@
 <template>
-  <transition name="rightPanel-animate">
+  <div ref="rightPanel" :class="{show:show}" class="rightPanel-container">
+    <div class="rightPanel-background"/>
 
-    <div
-      v-show="value"
-      ref="rightPanel"
-      class="vs-content-sidebar">
-      <div class="rightPanel-background"/>
-      <div
-        :class="[`vs-sidebar-${color}`]"
-        class="vs-sidebar">
-        <div class="vs-sidebar-items">
-          <slot/>
-        </div>
+    <div :class="[`rightPanel-${color}`]" class="rightPanel">
+      <div class="handle-button" type="primary" circle @click="show=!show">
+        <i :class="show?'el-icon-close':'el-icon-setting'" />
+      </div>
+      <div class="rightPanel-items">
+        <slot/>
       </div>
     </div>
-    <!-- <el-button type="primary" icon="el-icon-setting" circle/> -->
+  </div>
 
-  </transition>
 </template>
 
 <script>
+import { addClass, removeClass } from '@/utils'
+
 export default {
   name: 'RightPanel',
   props: {
@@ -36,10 +33,20 @@ export default {
       type: Boolean
     }
   },
+  data() {
+    return {
+      show: false
+    }
+  },
   watch: {
-    value() {
-      if (this.value && !this.clickNotClose) {
+    show(value) {
+      if (value && !this.clickNotClose) {
         this.addEventClick()
+      }
+      if (value) {
+        addClass(document.body, 'showRightPanel')
+      } else {
+        removeClass(document.body, 'showRightPanel')
       }
     }
   },
@@ -51,9 +58,10 @@ export default {
       window.addEventListener('click', this.closeSidebar)
     },
     closeSidebar(evt) {
-      const parent = evt.target.closest('.vs-sidebar')
+      const parent = evt.target.closest('.rightPanel')
+      console.log(parent)
       if (!parent) {
-        this.$emit('input', false)
+        this.show = false
         window.removeEventListener('click', this.closeSidebar)
       }
     },
@@ -66,54 +74,73 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" >
-.rightPanel-background {
-  background: rgba(0, 0, 0, .2);
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  z-index: 20000;
-  transition: all .3s ease;
-  opacity: 1;
+<style rel="stylesheet/scss" lang="scss" scoped>
+body  {
+  overflow: hidden;
+  position: relative;
+  width: calc(100% - 15px);
+
 }
 
-.vs-sidebar{
-  background: rgb(255,255,255);
-  z-index :3000;
+.rightPanel-background {
+  opacity: 0;
+  transition: opacity .3s ease;
+  background: rgba(0, 0, 0, .2);
+  width: 0;
+  height: 0;
+  position: fixed;
+  z-index: -1;
+}
+
+.rightPanel {
+  background: rgb(255, 255, 255);
+  z-index: 3000;
   position: fixed;
   height: 100vh;
   width: 100%;
   max-width: 260px;
   top: 0px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0px 0px 15px 0px rgba(0,0,0,.05);
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, .05);
   left: 0px;
   transition: all .25s ease;
+  transform: translate(100%);
   z-index: 40000;
- left: auto;
-    right: 0px;
-
+  left: auto;
+  right: 0px;
 }
 
-// animations
-.rightPanel-animate-enter-active,
-.rightPanel-animate-leave-active {
-  transition: all .25s ease;
-  .vs-sidebar {
-    transition: all .25s ease;
+.show {
 
+  // transition: all .25s ease;
+  .rightPanel-background {
+    z-index: 20000;
+    opacity: 1;
+    width: 100%;
+    height: 100%;
+  }
+
+  .rightPanel {
+    transform: translate(0);
   }
 }
 
-.rightPanel-animate-enter,
-.rightPanel-animate-leave-to {
-  .vs-sidebar-background {
-    opacity: 0 !important;
-  }
-  .vs-sidebar {
-   transform: translate(100%);
+.handle-button {
+  position: absolute;
+  left: -48px;
+  border-radius: 4px 0 0 4px !important;
+  top: 240px;
+  width: 48px;
+  height: 48px;
+  background: #1890ff;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 0;
+  text-align: center;
+  color: #fff;
+  line-height: 48px;
+
+  i {
+    font-size: 20px;
   }
 }
-
 </style>
